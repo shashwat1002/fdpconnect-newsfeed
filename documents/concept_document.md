@@ -37,5 +37,5 @@ To elaborate on "relevance":
 
 - relevance to the import-export business
 - relevance to the countries the user is concerned with. 
-
+- relevance to the product the user is interested in.
 
