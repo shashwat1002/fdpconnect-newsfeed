@@ -1,6 +1,7 @@
 # Team: 50
 
 Members:
+
 - Shashwat Singh
 - Venika Shruti
 - Tisha Dubey 
@@ -9,6 +10,27 @@ Members:
 # Design Overview 
 
 ## Architectural design 
+
+### Tf-idf model
+
+Assigned with the part of the pipeline that will put news aritcles into one of two bins: 
+
+- Related to import / export 
+- Not related ot import / export 
+
+The Tf-idf model will be trained on the corpus of Maritime gateway.
+
+
+### Geo - parser 
+
+Geo parsing will use pre trained models to assign grographical context to each article 
+
+### Keyword extraction 
+
+Will reduce each article into a queriable set of keywords. 
+
+
+## System interfaces
 
 ### APIs
 
