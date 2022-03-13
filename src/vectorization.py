@@ -3,9 +3,13 @@ from time import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
+import re
+
 from sklearn import metrics
 
 import pandas as pd
+
+import sys
 
 import pickle
 
@@ -45,7 +49,7 @@ def remove_stopwords(article):
 
     article_return = ""
 
-    for word in word_word_array:
+    for word in word_array:
         if (word not in STOPWORDS_SET) and (word not in STOPWORD_CUSTOM_SET):
 
             article_return += word 
@@ -54,26 +58,35 @@ def remove_stopwords(article):
 
 
 
+INDEX_OF_ARTICLES_IN_CSV = 'article'
+INDEX_OF_VERDICTS = 'verdict'
+
+
 train_set = None
 
 test_set = None
+train_articles = None
+train_verdicts = None
 
+test_articles = None 
+train_articles = None
 
 
 def initialize_data():
-    pass
+    global train_articles
+    global test_articles
+    global train_verdicts
+    global test_verdicts
+
+    train_articles = train_set[''+str(INDEX_OF_ARTICLES_IN_CSV)]
+    train_verdicts = train_set[''+str(INDEX_OF_VERDICTS)]
+
+    test_articles = test_set[''+str(INDEX_OF_ARTICLES_IN_CSV)]
+    test_verdicts = test_set[''+str(INDEX_OF_VERDICTS)]
 
 
-INDEX_OF_ARTICLES_IN_CSV = 0
-INDEX_OF_VERDICTS = 1
 
 
-
-train_articles = train_set[''+str(INDEX_OF_ARTICLES_IN_CSV)]
-train_verdicts = train_set[''+str(INDEX_OF_VERDICTS)]
-
-test_articles = test_set[''+str(INDEX_OF_ARTICLES_IN_CSV)]
-test_verdicts = test_set[''+str(INDEX_OF_VERDICTS)]
 
 train_vectorized = None
 test_vectorized = None
@@ -92,7 +105,7 @@ def vectorize():
 
     # Vectorization will happen here
     train_vectorized = VECTORIZER.fit_transform(train_articles)
-    test_vectorized = VECTORIZER.fit(test_articles)
+    test_vectorized = VECTORIZER.transform(test_articles)
 
 
 
@@ -109,7 +122,7 @@ def test():
 
     test_predicted = CLASSIFIER.predict(test_vectorized)
 
-    score = metrics.accuracy_score(test_vectorized, test_predicted)
+    score = metrics.accuracy_score(test_verdicts, test_predicted)
     print("The accuracy: " + str(score))
 
 
@@ -131,24 +144,26 @@ def main(train_file, test_file, input_file):
     except FileNotFoundError:
         CLASSIFIER = MultinomialNB()
 
-        train_set = pd.read_csv(train_file)
-        test_set = pd.read_csv(test_set)
+        train_set = pd.read_csv(train_file, engine="python", error_bad_lines=False)
+        test_set = pd.read_csv(test_file, engine="python", error_bad_lines=False)
+
+        initialize_data()
 
         vectorize()
         train()
         test()
         pickle.dump(CLASSIFIER, open(CLASSIFIER_FILE_NAME, "wb"))
 
-    input_set = pd.read_csv(input_set)
-    # Assuming we only have the set of articles as text 
+    # input_set = pd.read_csv(input_set)
+    # # Assuming we only have the set of articles as text 
 
-    input_set_vectorized = VECTORIZER.fit(input_set['0'])
+    # input_set_vectorized = VECTORIZER.fit(input_set['0'])
 
-    predictions = CLASSIFIER.predict(input_set_vectorized)
+    # predictions = CLASSIFIER.predict(input_set_vectorized)
 
-    for i in predictions:
-        print(i)
+    # for i in predictions:
+    #     print(i)
 
 
-
+main(sys.argv[1], sys.argv[2], sys.argv[3])
 
