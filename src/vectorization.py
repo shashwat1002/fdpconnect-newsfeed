@@ -24,6 +24,7 @@ STOPWORD_CUSTOM = []
 STOPWORD_CUSTOM_SET = set(STOPWORD_CUSTOM)
 
 CLASSIFIER_FILE_NAME = "classifier.sav"
+VECTORIZER_FILE_NAME = "vectorizer.sav"
 
 def remove_stopwords(article):
 
@@ -136,10 +137,17 @@ def main(train_file, test_file, input_file):
     global train_set
     global test_set
     global CLASSIFIER
+    global VECTORIZER
 
     try:
         # load the model if it already exists
         CLASSIFIER = pickle.load(open(CLASSIFIER_FILE_NAME, "rb"))
+        VECTORIZER = pickle.load(open(VECTORIZER_FILE_NAME, "rb"))
+
+        article = input()
+        vectorized = VECTORIZER.transform([article])
+        prediction = CLASSIFIER.predict(vectorized)
+        print(prediction)
 
     except FileNotFoundError:
         CLASSIFIER = MultinomialNB()
@@ -152,7 +160,11 @@ def main(train_file, test_file, input_file):
         vectorize()
         train()
         test()
+
+        # save model and the vectorizer 
         pickle.dump(CLASSIFIER, open(CLASSIFIER_FILE_NAME, "wb"))
+        pickle.dump(VECTORIZER, open(VECTORIZER_FILE_NAME, "wb"))
+
 
     # input_set = pd.read_csv(input_set)
     # # Assuming we only have the set of articles as text 
