@@ -2,6 +2,7 @@ from nltk.corpus import stopwords
 from time import time 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+import os
 
 from icecream import ic
 
@@ -26,6 +27,7 @@ STOPWORD_CUSTOM_SET = set(STOPWORD_CUSTOM)
 
 VECTORIZER = TfidfVectorizer(stop_words=set(stopwords.words("english")).union(STOPWORD_CUSTOM_SET))
 
+SAVE_ROOT_DIR = "model_vectorizer"
 CLASSIFIER_FILE_NAME = "classifier.sav"
 VECTORIZER_FILE_NAME = "vectorizer.sav"
 
@@ -111,8 +113,8 @@ def main(train_file, test_file, input_file):
 
     try:
         # load the model if it already exists
-        CLASSIFIER = pickle.load(open(CLASSIFIER_FILE_NAME, "rb"))
-        VECTORIZER = pickle.load(open(VECTORIZER_FILE_NAME, "rb"))
+        CLASSIFIER = pickle.load(open(os.path.join(SAVE_ROOT_DIR, CLASSIFIER_FILE_NAME), "rb"))
+        VECTORIZER = pickle.load(open(os.path.join(SAVE_ROOT_DIR, VECTORIZER_FILE_NAME), "rb"))
 
         article = input()
         vectorized = VECTORIZER.transform([article])
@@ -131,9 +133,11 @@ def main(train_file, test_file, input_file):
         train()
         test()
 
-        # save model and the vectorizer 
-        pickle.dump(CLASSIFIER, open(CLASSIFIER_FILE_NAME, "wb"))
-        pickle.dump(VECTORIZER, open(VECTORIZER_FILE_NAME, "wb"))
+        # save model and the vectorizer
+        os.mknod(os.path.join(SAVE_ROOT_DIR, CLASSIFIER_FILE_NAME))
+        os.mknod(os.path.join(SAVE_ROOT_DIR, VECTORIZER_FILE_NAME))
+        pickle.dump(CLASSIFIER, open(os.path.join(SAVE_ROOT_DIR, CLASSIFIER_FILE_NAME), "wb"))
+        pickle.dump(VECTORIZER, open(os.path.join(SAVE_ROOT_DIR, VECTORIZER_FILE_NAME), "wb"))
 
 
     # input_set = pd.read_csv(input_set)
