@@ -3,6 +3,8 @@ from time import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
+from icecream import ic
+
 import re
 
 from sklearn import metrics
@@ -13,49 +15,19 @@ import sys
 
 import pickle
 
-VECTORIZER = TfidfVectorizer()
 CLASSIFIER = None
 
 STOPWORDS_SET = set(stopwords.words('english'))
 
 STOPWORD_CUSTOM = []
-# if we want to add more 
+# if we want to add more
 
 STOPWORD_CUSTOM_SET = set(STOPWORD_CUSTOM)
 
+VECTORIZER = TfidfVectorizer(stop_words=set(stopwords.words("english")).union(STOPWORD_CUSTOM_SET))
+
 CLASSIFIER_FILE_NAME = "classifier.sav"
 VECTORIZER_FILE_NAME = "vectorizer.sav"
-
-def remove_stopwords(article):
-
-    # wrapping punctuation with spaces 
-
-    article_modified = re.sub(r",", " , ", article)
-    article_modified = re.sub(r"\.[^$]", " . ", article)
-    article_modified = re.sub(r"\.$", " .", article)
-    article_modified = re.sub(r"!$", " !", article)
-    article_modified = re.sub(r"![^$]", " ! ", article)
-    article_modified = re.sub(r"\?[^$]", " ? ", article)
-    article_modified = re.sub(r"\?$", " ?", article)
-    article_modified = re.sub(r"\;[^$]", " ? ", article)
-    article_modified = re.sub(r"\;$", " ?", article)
-    article_modified = re.sub(r"\:[^$]", " ? ", article)
-    article_modified = re.sub(r"\:$", " ?", article)
-
-
-
-    article_modied = re.sub(r"(\(|\)|\[|\]|\{|\})", r" \1 ", article)
-
-    word_array = re.split(r"\s+", article_modied)
-
-    article_return = ""
-
-    for word in word_array:
-        if (word not in STOPWORDS_SET) and (word not in STOPWORD_CUSTOM_SET):
-
-            article_return += word 
-
-    return article_return
 
 
 
@@ -101,8 +73,6 @@ def vectorize():
     global train_vectorized
     global test_vectorized
 
-    train_articles = train_articles.apply(remove_stopwords)
-    test_articles = test_articles.apply(remove_stopwords)
 
     # Vectorization will happen here
     train_vectorized = VECTORIZER.fit_transform(train_articles)
@@ -179,3 +149,14 @@ def main(train_file, test_file, input_file):
 
 main(sys.argv[1], sys.argv[2], sys.argv[3])
 
+
+def classify_articles_set(classifier, vectorizer, articles):
+
+    vectorized_matrix = vectorizer(articles)
+    predictions = classifier(vectorized_matrix)
+
+    return predictions
+
+def generate_vectors_tokens(vectorizer, tokens):
+
+    return vectorizer(tokens)
