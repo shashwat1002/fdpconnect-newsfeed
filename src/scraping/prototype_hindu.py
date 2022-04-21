@@ -3,11 +3,13 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import os
 import json
+import xml.etree.ElementTree as ET
+from icecream import ic
+
+XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
 
-
-
-def scrap_english_page(url, corpus_file):
+def scrap_english_page(url):
     # assuming that both the files are in append mode
     headers ={"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
     response = requests.get(url, headers=headers)
@@ -33,16 +35,23 @@ def scrap_english_page(url, corpus_file):
                 # if it's a reference then we don't want to write the text
                 output_text += content_string
     
+    img_url = ""
+
+    img_div = soup_for_page.find("div", {"class": "lead-img-cont"})
+
+    if img_div is not None:
+        source_obj = img_div.find("source")
+        #ic(images)
+        try:
+            img_url = source_obj["srcset"]
+        except KeyError:
+            pass
+
     output_dict = {
-        "url": url,
-        "title": title.string,
-        "publish_time": publish_time.string,
-        "updated_time": update_time.string,
+        "image_url": img_url,
         "content": output_text
     }
-    json_content = json.dumps(output_dict, indent=4)
-    corpus_file.write(json_content)
-    return json_content
+    return output_dict
 
 # Driving code begins here: 
 
@@ -51,11 +60,49 @@ def main():
     url = input()
     corpus_file = open("hindu_article.json", "a")
 
-    scrap_english_page(url, corpus_file)
+    scrap_english_page(url)
 
-main()
+# main()
 
 
+def process_sitemap_xml(url):
+
+    response = requests.get(url)
+
+    tree = ET.fromstring(response.content)
+
+    list_of_article_dicts = []
+
+    for num, child in enumerate(tree):
+        article_dict = {}
+        lastmod = ""
+        url = ""
+        title = ""
+        keywords = ""
+        for i, child2 in enumerate(child):
+            if i == 0:
+                article_dict["url"] = child2.text
+            if i == 1:
+                article_dict["lastmod"] = child2.text
+            if i == 2:
+                for j, child3 in enumerate(child2):
+                    if j == 2:
+                        article_dict["title"] = child3.text
+                    if j == 4:
+                        article_dict["keywords"] = child3.text
+        content_dict = scrap_english_page(article_dict["url"])
+        content_dict.update(article_dict)
+        list_of_article_dicts.append(content_dict)
+        # if num == 10:
+        #     break
+
+
+    return list_of_article_dicts
+
+
+
+list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
+# ic(list_of_articles)
 
 
 
