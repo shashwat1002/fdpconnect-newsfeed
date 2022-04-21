@@ -5,6 +5,9 @@ import os
 import json
 from icecream import ic
 import xmltodict
+
+from google_news_sitemap import process_sitemap_xml
+
 XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
 
@@ -44,9 +47,12 @@ def scrap_english_page(url):
             pass
 
     output_dict = {
-        "image_url": img_url,
         "content": output_text
     }
+
+    if img_url != "":
+        output_dict["image_url"] = img_url
+
     return output_dict
 
 # Driving code begins here: 
@@ -61,37 +67,11 @@ def main():
 # main()
 
 
-def process_sitemap_xml(url):
-
-    response = requests.get(url)
 
 
 
-    obj_rep = xmltodict.parse(response.content)
-
-    list_of_article_dicts = []
-
-
-
-    for num, dict_rep in enumerate(obj_rep["urlset"]["url"]):
-        article_dict = {}
-        article_dict["url"] = dict_rep["loc"]
-        article_dict["title"] = dict_rep["news:news"]["news:title"]
-        article_dict["lastmod"] = dict_rep["lastmod"]
-
-        content_dict = scrap_english_page(article_dict["url"])
-        content_dict.update(article_dict)
-        list_of_article_dicts.append(content_dict)
-        # if num == 10:
-        #     break
-
-
-    return list_of_article_dicts
-
-
-
-# list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
-# ic(list_of_articles)
+list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page)
+ic(list_of_articles)
 
 
 
