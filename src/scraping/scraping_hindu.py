@@ -70,7 +70,7 @@ def main():
 
 
 
-list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page)
+list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page, NUM_ARTICLES)
 ic(list_of_articles)
 
 

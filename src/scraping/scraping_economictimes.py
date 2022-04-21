@@ -12,7 +12,7 @@ XML_SITEMAP_URL = "https://economictimes.indiatimes.com/sitemap/today"
 
 def scrap_english_page(url):
     # assuming that both the files are in append mode
-    headers ={"User-Agent" : "Googlebot-News Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
+    headers = HEADERS
     response = requests.get(url, headers=headers)
     soup_for_page = BeautifulSoup(response.content, 'html.parser')
 
@@ -56,5 +56,5 @@ def scrap_english_page(url):
 
 
 
-list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page)
+list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page, NUM_ARTICLES)
 ic(list_of_articles)

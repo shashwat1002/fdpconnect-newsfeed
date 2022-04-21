@@ -7,11 +7,12 @@ from icecream import ic
 import xmltodict
 
 HEADERS ={"User-Agent" : "Googlebot-News Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
+NUM_ARTICLES = 10
 
+def process_sitemap_xml(url, scrap_english_page, num_articles):
 
-def process_sitemap_xml(url, scrap_english_page):
-
-    response = requests.get(url)
+    headers = HEADERS
+    response = requests.get(url, headers=HEADERS)
 
 
 
@@ -25,7 +26,10 @@ def process_sitemap_xml(url, scrap_english_page):
         article_dict = {}
         article_dict["url"] = dict_rep["loc"]
         article_dict["title"] = dict_rep["news:news"]["news:title"]
-        article_dict["lastmod"] = dict_rep["lastmod"]
+        try:
+            article_dict["lastmod"] = dict_rep["lastmod"]
+        except KeyError:
+            article_dict["lastmod"] = dict_rep["news:news"]["news:publication_date"]
 
         try:
             article_dict["image_url"] = dict_rep["image:image"]["image:loc"]
@@ -35,8 +39,8 @@ def process_sitemap_xml(url, scrap_english_page):
         content_dict = scrap_english_page(article_dict["url"])
         article_dict.update(content_dict)
         list_of_article_dicts.append(article_dict)
-        # if num == 10:
-        #     break
+        if num == num_articles:
+            break
 
 
     return list_of_article_dicts
