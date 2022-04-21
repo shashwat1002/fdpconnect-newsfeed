@@ -3,9 +3,8 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import os
 import json
-import xml.etree.ElementTree as ET
 from icecream import ic
-
+import xmltodict
 XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
 
@@ -66,27 +65,20 @@ def process_sitemap_xml(url):
 
     response = requests.get(url)
 
-    tree = ET.fromstring(response.content)
+
+
+    obj_rep = xmltodict.parse(response.content)
 
     list_of_article_dicts = []
 
-    for num, child in enumerate(tree):
+
+
+    for num, dict_rep in enumerate(obj_rep["urlset"]["url"]):
         article_dict = {}
-        lastmod = ""
-        url = ""
-        title = ""
-        keywords = ""
-        for i, child2 in enumerate(child):
-            if i == 0:
-                article_dict["url"] = child2.text
-            if i == 1:
-                article_dict["lastmod"] = child2.text
-            if i == 2:
-                for j, child3 in enumerate(child2):
-                    if j == 2:
-                        article_dict["title"] = child3.text
-                    if j == 4:
-                        article_dict["keywords"] = child3.text
+        article_dict["url"] = dict_rep["loc"]
+        article_dict["title"] = dict_rep["news:news"]["news:title"]
+        article_dict["lastmod"] = dict_rep["lastmod"]
+
         content_dict = scrap_english_page(article_dict["url"])
         content_dict.update(article_dict)
         list_of_article_dicts.append(content_dict)
@@ -98,8 +90,8 @@ def process_sitemap_xml(url):
 
 
 
-#list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
-#ic(list_of_articles)
+# list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
+# ic(list_of_articles)
 
 
 
