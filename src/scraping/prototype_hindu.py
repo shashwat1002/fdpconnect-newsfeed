@@ -19,9 +19,6 @@ def scrap_english_page(url):
     parsed_url = urllib.parse.urlparse(url)
     title = soup_for_page.title
 
-    publish_time = soup_for_page.find("meta", attrs={"name": "publish-date"})
-
-    update_time = soup_for_page.find("meta", attrs={"name": "publish-date"})
     #print(time)
 
     output_text = ""
@@ -34,7 +31,7 @@ def scrap_english_page(url):
             if content_string is not None:
                 # if it's a reference then we don't want to write the text
                 output_text += content_string
-    
+
     img_url = ""
 
     img_div = soup_for_page.find("div", {"class": "lead-img-cont"})
@@ -101,8 +98,8 @@ def process_sitemap_xml(url):
 
 
 
-list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
-# ic(list_of_articles)
+#list_of_articles = process_sitemap_xml(XML_SITEMAP_URL)
+#ic(list_of_articles)
 
 
 
