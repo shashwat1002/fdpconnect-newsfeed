@@ -6,14 +6,14 @@ import json
 from icecream import ic
 import xmltodict
 
-from google_news_sitemap import process_sitemap_xml
+from google_news_sitemap import *
 
 XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
 
 def scrap_english_page(url):
     # assuming that both the files are in append mode
-    headers ={"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
+    headers = HEADERS
     response = requests.get(url, headers=headers)
     soup_for_page = BeautifulSoup(response.content, 'html.parser')
 
