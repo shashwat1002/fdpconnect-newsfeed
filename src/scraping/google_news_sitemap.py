@@ -32,8 +32,8 @@ def process_sitemap_xml(url, scrap_english_page):
         content_dict = scrap_english_page(article_dict["url"])
         article_dict.update(content_dict)
         list_of_article_dicts.append(article_dict)
-        if num == 10:
-            break
+        # if num == 10:
+        #     break
 
 
     return list_of_article_dicts
