@@ -36,6 +36,11 @@ def process_sitemap_xml(url, scrap_english_page, num_articles):
         except KeyError:
             article_dict["image_url"] = ""
 
+        try:
+            article_dict["keywords"] = dict_rep["news:news"]["news:keywords"]
+        except KeyError:
+            article_dict["keywords"] = ""
+
         content_dict = scrap_english_page(article_dict["url"])
         article_dict.update(content_dict)
         list_of_article_dicts.append(article_dict)
