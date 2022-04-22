@@ -6,7 +6,7 @@ import json
 from icecream import ic
 import xmltodict
 
-from google_news_sitemap import *
+from . import *
 
 XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
@@ -43,7 +43,7 @@ def scrap_english_page(url):
         #ic(images)
         try:
             img_url = source_obj["srcset"]
-        except KeyError:
+        except TypeError:
             pass
 
     output_dict = {

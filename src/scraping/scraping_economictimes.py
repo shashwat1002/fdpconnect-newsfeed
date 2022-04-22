@@ -6,7 +6,7 @@ import json
 from icecream import ic
 import xmltodict
 
-from google_news_sitemap import *
+from .google_news_sitemap import *
 
 XML_SITEMAP_URL = "https://economictimes.indiatimes.com/sitemap/today"
 
