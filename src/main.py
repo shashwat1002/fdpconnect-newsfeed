@@ -33,6 +33,11 @@ def main():
 
     classifier, vectorizer = load_vecorizer_classifier()
 
+    if not os.path.exists(SCRAPED_DATA):
+        with open(SCRAPED_DATA, "w") as output_file:
+            output_file.write("title,keywords,url,image_url,lastmod,content\n")
+            output_file.close()
+
     articles = []
 
     articles += process_sitemap_xml(hindu.XML_SITEMAP_URL, hindu.scrap_english_page, -1, vectorizer, classifier)
@@ -45,15 +50,11 @@ def main():
     write_articles(articles)
     articles += process_sitemap_xml(livelaw.XML_SITEMAP_URL, livelaw.scrap_english_page, -1, vectorizer, classifier)
     write_articles(articles)
-    #articles += maritime.process_sitemap_xml(maritime.XML_SITEMAP_URL, maritime.scrap_english_page, -1, vectorizer, classifier)
+    articles += maritime.process_sitemap_xml(maritime.XML_SITEMAP_URL, maritime.scrap_english_page, -1)
+    write_articles(articles)
     articles += process_sitemap_xml(mint.XML_SITEMAP_URL, mint.scrap_english_page, -1, vectorizer, classifier)
     write_articles(articles)
 
-    with open(SCRAPED_DATA, "a") as output_file:
-        fieldnames = ['title', 'keywords', 'url', 'image_url', 'lastmod', 'content']
-        writer = csv.DictWriter(output_file, fieldnames=fieldnames)
 
-        for article in articles:
-            writer.writerow(article)
 
 main()
