@@ -3,21 +3,25 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import os
 import json
+from icecream import ic
+import xmltodict
+
+from . import *
+
+XML_SITEMAP_URL = "https://www.thehindu.com/sitemap/googlenews/all/all.xml"
 
 
-
-
-def scrap_english_page(url, corpus_file):
+def scrap_english_page(url):
     # assuming that both the files are in append mode
-    headers ={"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
+    headers = HEADERS
     response = requests.get(url, headers=headers)
     soup_for_page = BeautifulSoup(response.content, 'html.parser')
 
     all_paragraphs = soup_for_page.find_all('p')
     parsed_url = urllib.parse.urlparse(url)
     title = soup_for_page.title
-    time = soup_for_page.find("meta", property="og:updated_time")
-    print(time)
+
+    #print(time)
 
     output_text = ""
 
@@ -29,30 +33,45 @@ def scrap_english_page(url, corpus_file):
             if content_string is not None:
                 # if it's a reference then we don't want to write the text
                 output_text += content_string
-    
+
+    img_url = ""
+
+    img_div = soup_for_page.find("div", {"class": "lead-img-cont"})
+
+    if img_div is not None:
+        source_obj = img_div.find("source")
+        #ic(images)
+        try:
+            img_url = source_obj["srcset"]
+        except TypeError:
+            pass
+
     output_dict = {
-        "url": url,
-        "title": title.string,
-        "publish_time": "",
-        "updated_time": time.string,
         "content": output_text
     }
-    json_content = json.dumps(output_dict, indent=4)
-    corpus_file.write(json_content)
-    return json_content
+
+    if img_url != "":
+        output_dict["image_url"] = img_url
+
+    return output_dict
 
 # Driving code begins here: 
 
 def main():
 
     url = input()
-    corpus_file = open("maritime_article.json", "a")
+    corpus_file = open("hindu_article.json", "a")
 
-    scrap_english_page(url, corpus_file)
+    scrap_english_page(url)
 
-main()
+# main()
 
 
+
+
+
+# list_of_articles = process_sitemap_xml(XML_SITEMAP_URL, scrap_english_page, NUM_ARTICLES)
+# ic(list_of_articles)
 
 
 

@@ -16,6 +16,11 @@ import sys
 
 import pickle
 
+from scipy.spatial.distance import cosine
+import scipy
+import numpy
+import pandas
+
 CLASSIFIER = None
 
 STOPWORDS_SET = set(stopwords.words('english'))
@@ -78,6 +83,7 @@ def vectorize():
 
     # Vectorization will happen here
     train_vectorized = VECTORIZER.fit_transform(train_articles)
+    ic(type(train_vectorized.shape))
     test_vectorized = VECTORIZER.transform(test_articles)
 
 
@@ -118,6 +124,7 @@ def main(train_file, test_file, input_file):
 
         article = input()
         vectorized = VECTORIZER.transform([article])
+        ic(type(vectorized[0]))
         prediction = CLASSIFIER.predict(vectorized)
         print(prediction)
 
@@ -163,4 +170,32 @@ def classify_articles_set(classifier, vectorizer, articles):
 
 def generate_vectors_tokens(vectorizer, tokens):
 
-    return vectorizer(tokens)
+    return vectorizer.transform([tokens])
+
+def sort_relevance(vectorizer, dataframe_vectorized, query_tokens, dataframe_unvectorized):
+
+    query_tokens_vectorized = generate_vectors_tokens(vectorizer, query_tokens)
+    total_list = []
+
+    for i, article in enumerate(dataframe_unvectorized):
+        total_list.append((article, dataframe_vectorized[i].toarray()))
+    
+    total_list = sorted(total_list, key=lambda x: (1-cosine(x[1], query_tokens_vectorized.toarray())))
+    ic(total_list[:3])
+
+    # for vector in dataframe_vectorized:
+    #     cosine_distance = cosine(query_tokens_vectorized.toarray(), vector.toarray())
+    #     cosine_meas = 1 - cosine_distance
+    #     ic(cosine_meas)
+    ic(new_data)
+    return new_data.sort_values(by="vectors",
+                                key=lambda x: (1-cosine(numpy.array(x), query_tokens_vectorized.toarray())))
+
+# train_file = "data/train_corp.csv"
+# train_set = pd.read_csv(train_file, engine="python", error_bad_lines=False)
+# test_set = pd.read_csv(train_file, engine="python", error_bad_lines=False)
+
+# initialize_data()
+# vectorize()
+# sorted_data = sort_relevance(VECTORIZER, train_vectorized, "kolkata rice shrimp", train_articles)
+# ic(sorted_data.head(4))
