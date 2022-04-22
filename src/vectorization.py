@@ -16,10 +16,11 @@ import sys
 
 import pickle
 
-from scipy.spatial.distance import cosine
+from scipy.spatial.distance import cosine, cdist
 import scipy
 import numpy
 import pandas
+from settings import *
 
 CLASSIFIER = None
 
@@ -158,7 +159,7 @@ def main(train_file, test_file, input_file):
     #     print(i)
 
 
-main(sys.argv[1], sys.argv[2], sys.argv[3])
+# main(sys.argv[1], sys.argv[2], sys.argv[3])
 
 
 def classify_articles_set(classifier, vectorizer, articles):
@@ -199,3 +200,24 @@ def sort_relevance(vectorizer, dataframe_vectorized, query_tokens, dataframe_unv
 # vectorize()
 # sorted_data = sort_relevance(VECTORIZER, train_vectorized, "kolkata rice shrimp", train_articles)
 # ic(sorted_data.head(4))
+
+
+def sort_relevance(vectorizer, dataframe, query_tokens):
+    query_tokens_vectorized = generate_vectors_tokens(vectorizer, query_tokens)
+    #ic(query_tokens_vectorized.toarray().squeeze().shape)
+    cosine(query_tokens_vectorized.toarray(), query_tokens_vectorized.toarray())
+    ic(vectorizer.transform(dataframe["title"]).shape)
+    ic(query_tokens_vectorized.shape)
+    dataframe["cosine_distance"] = cdist(vectorizer.transform(dataframe["keywords"]).toarray(), query_tokens_vectorized.toarray(), metric="cosine")
+
+    new_data = dataframe.drop_duplicates().sort_values(by="cosine_distance", ascending=True)
+    return new_data
+
+
+# CLASSIFIER = pickle.load(open(os.path.join(SAVE_ROOT_DIR, CLASSIFIER_FILE_NAME), "rb"))
+# VECTORIZER = pickle.load(open(os.path.join(SAVE_ROOT_DIR, VECTORIZER_FILE_NAME), "rb"))
+
+# query_tokens = "kolkata cycles"
+# dataframe = pd.read_csv("scraped.csv", engine="python", error_bad_lines=False)
+# sorted_data = sort_relevance(VECTORIZER, dataframe, query_tokens)
+# ic(sorted_data.head(10)["title"], sorted_data.head(10)["cosine_distance"])
