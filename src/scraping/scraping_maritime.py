@@ -53,7 +53,7 @@ def main():
 # main()
 
 
-def process_sitemap_xml(url):
+def process_sitemap_xml(url, scrap_english_page, num_articles):
     headers ={"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
     response = requests.get(url, headers=headers)
 
@@ -82,7 +82,7 @@ def process_sitemap_xml(url):
         content_dict = scrap_english_page(article_dict["url"])
         content_dict.update(article_dict)
         list_of_article_dicts.append(content_dict)
-        if num == 10:
+        if num == num_articles:
             break
 
 
